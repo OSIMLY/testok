@@ -6,9 +6,11 @@ import { getValueByPath } from './util';
 let columnIdSeed = 1;
 
 const defaults = {
+  // 默认列的初始属性
   default: {
     order: ''
   },
+  // 选择列的初始属性
   selection: {
     width: 48,
     minWidth: 48,
@@ -16,12 +18,14 @@ const defaults = {
     order: '',
     className: 'el-table-column--selection'
   },
+  // 展开列的初始属性
   expand: {
     width: 48,
     minWidth: 48,
     realWidth: 48,
     order: ''
   },
+  // 序号列的初始属性
   index: {
     width: 48,
     minWidth: 48,
@@ -31,6 +35,7 @@ const defaults = {
 };
 
 const forced = {
+  // 定义选择列的列头及单元格渲染方式等
   selection: {
     renderHeader: function(h) {
       return <el-checkbox
@@ -46,6 +51,7 @@ const forced = {
     sortable: false,
     resizable: false
   },
+  // 定义序号列的列头及单元格渲染方式等
   index: {
     renderHeader: function(h, { column }) {
       return column.label || '#';
@@ -55,6 +61,7 @@ const forced = {
     },
     sortable: false
   },
+  // 定义展开列的列头及单元格渲染方式等
   expand: {
     renderHeader: function(h, {}) {
       return '';
@@ -71,7 +78,7 @@ const forced = {
     className: 'el-table__expand-column'
   }
 };
-
+// 生成一个默认初始值的列对象
 const getDefaultColumn = function(type, options) {
   const column = {};
 
@@ -94,7 +101,7 @@ const getDefaultColumn = function(type, options) {
 
   return column;
 };
-
+// 默认单元格渲染函数
 const DEFAULT_RENDER_CELL = function(h, { row, column }) {
   const property = column.property;
   if (column && column.formatter) {
@@ -112,40 +119,66 @@ export default {
   name: 'ElTableColumn',
 
   props: {
+    // 列的类型
     type: {
       type: String,
       default: 'default'
     },
+    // 列头标题
     label: String,
+    // 列的样式类名
     className: String,
+    // 列头的样式类名
     labelClassName: String,
+    // 列绑定的字段名称
     property: String,
+    // 列绑定的字段名称，同于 property
     prop: String,
+    // 列宽
     width: {},
+    // 列的最小宽度
     minWidth: {},
+    // 列头渲染函数
     renderHeader: Function,
+    // 是否可排序或自定义排序
     sortable: {
       type: [String, Boolean],
       default: false
     },
+    // 指定排序方法
     sortMethod: Function,
+    // 是否允许调整列宽
     resizable: {
       type: Boolean,
       default: true
     },
+    // 所属的表格对象
     context: {},
+    // 列的键值
     columnKey: String,
+    // 列的单元格排序方式
     align: String,
+    // 列头排序方式
     headerAlign: String,
+    // 内容过长时显示气泡提示，兼容老版
     showTooltipWhenOverflow: Boolean,
+    // 内容过长时显示气泡提示，同上
     showOverflowTooltip: Boolean,
+    // 是否为固定列
     fixed: [Boolean, String],
+    // 单元格格式化函数
     formatter: Function,
+    // 为选择列时，行是否可选的回调函数
     selectable: Function,
+    // 是否保留选择集
     reserveSelection: Boolean,
+    // 筛选函数
     filterMethod: Function,
+    // 过滤选项预设值
     filteredValue: Array,
+    // 过滤选项列表
     filters: Array,
+    // 过滤是否允许多选
     filterMultiple: {
       type: Boolean,
       default: true
@@ -154,7 +187,9 @@ export default {
 
   data() {
     return {
+      // 是否为子列
       isSubColumn: false,
+      // 未使用的变量
       columns: []
     };
   },

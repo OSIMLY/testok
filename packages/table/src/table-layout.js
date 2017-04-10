@@ -1,6 +1,10 @@
 import scrollbarWidth from 'element-ui/src/utils/scrollbar-width';
 
 class TableLayout {
+    /**
+     * 构造函数
+     * @param {*} options 
+     */
   constructor(options) {
     this.table = null;
     this.store = null;
@@ -34,7 +38,9 @@ class TableLayout {
       throw new Error('store is required for Table Layout');
     }
   }
-
+/**
+ * 更新竖向滚动条
+ */
   updateScrollY() {
     const height = this.height;
     if (typeof height !== 'string' && typeof height !== 'number') return;
@@ -44,7 +50,11 @@ class TableLayout {
       this.scrollY = body.offsetHeight > bodyWrapper.offsetHeight;
     }
   }
-
+/**
+ * 设置高度
+ * @param {*} value 
+ * @param {*} prop 
+ */
   setHeight(value, prop = 'height') {
     const el = this.table.$el;
     if (typeof value === 'string' && /^\d+$/.test(value)) {
@@ -65,11 +75,16 @@ class TableLayout {
       this.updateHeight();
     }
   }
-
+/**
+ * 设置最大高度
+ * @param {*} value 
+ */
   setMaxHeight(value) {
     return this.setHeight(value, 'max-height');
   }
-
+/**
+ * 更新高度
+ */
   updateHeight() {
     const height = this.tableHeight = this.table.$el.clientHeight;
     const noData = !this.table.data || this.table.data.length === 0;
@@ -91,7 +106,9 @@ class TableLayout {
     }
     this.viewportHeight = this.scrollX ? height - (noData ? 0 : this.gutterWidth) : height;
   }
-
+/**
+ * 更新布局
+ */
   update() {
     const fit = this.fit;
     const columns = this.table.columns;

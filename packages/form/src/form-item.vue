@@ -1,10 +1,10 @@
 <template>
     <div class="el-form-item"
          :class="{
-            'is-error': validateState === 'error',
-            'is-validating': validateState === 'validating',
-            'is-required': isRequired || required
-          }">
+                'is-error': validateState === 'error',
+                'is-validating': validateState === 'validating',
+                'is-required': isRequired || required
+              }">
         <label :for="prop"
                class="el-form-item__label"
                v-bind:style="labelStyle"
@@ -165,7 +165,7 @@ export default {
                 this.validateState = !errors ? 'success' : 'error';
                 this.validateMessage = errors ? errors[0].message : '';
                 this.showValidtor = errors;
-
+                this.$emit('validated', this.validateState, this.validateMessage)
                 callback(this.validateMessage);
             });
         },

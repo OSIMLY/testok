@@ -2,7 +2,10 @@ import ElCheckbox from 'element-ui/packages/checkbox';
 import ElTag from 'element-ui/packages/tag';
 import Vue from 'vue';
 import FilterPanel from './filter-panel.vue';
-
+/**
+ * 获取全部列
+ * @param {*} columns 
+ */
 const getAllColumns = (columns) => {
   const result = [];
   columns.forEach((column) => {
@@ -15,7 +18,10 @@ const getAllColumns = (columns) => {
   });
   return result;
 };
-
+/**
+ * 根据列模板生成行
+ * @param {*} originColumns 
+ */
 const convertToRows = (originColumns) => {
   let maxLevel = 1;
   const traverse = (column, parent) => {
@@ -222,6 +228,11 @@ export default {
   },
 
   methods: {
+    /**
+     * 判断单元格是否隐藏
+     * @param {*} index 
+     * @param {*} columns 
+     */
     isCellHidden(index, columns) {
       if (this.fixed === true || this.fixed === 'left') {
         return index >= this.leftFixedCount;
@@ -235,11 +246,17 @@ export default {
         return (index < this.leftFixedCount) || (index >= this.columnsCount - this.rightFixedCount);
       }
     },
-
+    /**
+     * 切换全选状态
+     */
     toggleAllSelection() {
       this.store.commit('toggleAllSelection');
     },
-
+    /**
+     * 处理筛选器点击
+     * @param {*} event 
+     * @param {*} column 
+     */
     handleFilterClick(event, column) {
       event.stopPropagation();
       const target = event.target;
@@ -267,7 +284,11 @@ export default {
         filterPanel.showPopper = true;
       }, 16);
     },
-
+    /**
+     * 处理表头点击
+     * @param {*} event 
+     * @param {*} column 
+     */
     handleHeaderClick(event, column) {
       if (!column.filters && column.sortable) {
         this.handleSortClick(event, column);
@@ -277,11 +298,19 @@ export default {
 
       this.$parent.$emit('header-click', column, event);
     },
-
+    /**
+     * 处理表头右键菜单
+     * @param {*} event 
+     * @param {*} column 
+     */
     handleHeaderContextmenu(event, column) {
       this.$parent.$emit('header-contextmenu', column, event);
     },
-
+    /**
+     * 处理鼠标按下
+     * @param {*} event 
+     * @param {*} column 
+     */
     handleMouseDown(event, column) {
       if (this.$isServer) return;
       if (column.children && column.children.length > 0) return;
@@ -355,7 +384,11 @@ export default {
         document.addEventListener('mouseup', handleMouseUp);
       }
     },
-
+    /**
+     * 处理鼠标移动
+     * @param {*} event 
+     * @param {*} column 
+     */
     handleMouseMove(event, column) {
       if (column.children && column.children.length > 0) return;
       let target = event.target;
@@ -378,16 +411,26 @@ export default {
         }
       }
     },
-
+    /**
+     * 处理鼠标移出
+     */
     handleMouseOut() {
       if (this.$isServer) return;
       document.body.style.cursor = '';
     },
-
+    /**
+     * 切换顺序
+     * @param {*} order 
+     */
     toggleOrder(order) {
       return !order ? 'ascending' : order === 'ascending' ? 'descending' : null;
     },
-
+    /**
+     * 处理排序点击
+     * @param {*} event 
+     * @param {*} column 
+     * @param {*} givenOrder 
+     */
     handleSortClick(event, column, givenOrder) {
       event.stopPropagation();
       let order = givenOrder || this.toggleOrder(column.order);

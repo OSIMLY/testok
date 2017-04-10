@@ -1,7 +1,11 @@
 import Vue from 'vue';
 import debounce from 'throttle-debounce/debounce';
 import { orderBy, getColumnById, getRowIdentity } from './util';
-
+/**
+ * 表格数据排序
+ * @param {Object} data 
+ * @param {Object} states 
+ */
 const sortData = (data, states) => {
   const sortingColumn = states.sortingColumn;
   if (!sortingColumn || typeof sortingColumn.sortable === 'string') {
@@ -9,7 +13,11 @@ const sortData = (data, states) => {
   }
   return orderBy(data, states.sortProp, states.sortOrder, sortingColumn.sortMethod);
 };
-
+/**
+ * 获取键映射
+ * @param {*} array 
+ * @param {*} rowKey 
+ */
 const getKeysMap = function(array, rowKey) {
   const arrayMap = {};
   (array || []).forEach((row, index) => {
@@ -17,7 +25,12 @@ const getKeysMap = function(array, rowKey) {
   });
   return arrayMap;
 };
-
+/**
+ * 切换行的选中状态
+ * @param {*} states 
+ * @param {*} row 
+ * @param {*} selected 
+ */
 const toggleRowSelection = function(states, row, selected) {
   let changed = false;
   const selection = states.selection;
@@ -42,7 +55,11 @@ const toggleRowSelection = function(states, row, selected) {
 
   return changed;
 };
-
+/**
+ * 表格状态存储
+ * @param {*} table 
+ * @param {*} initialState 
+ */
 const TableStore = function(table, initialState = {}) {
   if (!table) {
     throw new Error('Table is required.');
@@ -71,7 +88,9 @@ const TableStore = function(table, initialState = {}) {
     hoverRow: null,
     filters: {},
     expandRows: [],
-    defaultExpandAll: false
+    defaultExpandAll: false,
+    // 新增汇总列
+    summary: null
   };
 
   for (let prop in initialState) {
@@ -80,7 +99,9 @@ const TableStore = function(table, initialState = {}) {
     }
   }
 };
-
+/**
+ * 表格状态修改
+ */
 TableStore.prototype.mutations = {
   setData(states, data) {
     const dataInstanceChanged = states._data !== data;
@@ -282,7 +303,10 @@ TableStore.prototype.mutations = {
     states.isAllSelected = value;
   })
 };
-
+/**
+ * 整理列
+ * @param {*} columns 
+ */
 const doFlattenColumns = (columns) => {
   const result = [];
   columns.forEach((column) => {
@@ -294,7 +318,9 @@ const doFlattenColumns = (columns) => {
   });
   return result;
 };
-
+/**
+ * 更新列
+ */
 TableStore.prototype.updateColumns = function() {
   const states = this.states;
   const _columns = states._columns || [];
@@ -309,11 +335,15 @@ TableStore.prototype.updateColumns = function() {
   states.columns = doFlattenColumns(states.originColumns);
   states.isComplex = states.fixedColumns.length > 0 || states.rightFixedColumns.length > 0;
 };
-
+/**
+ * 判断行是否选中
+ */
 TableStore.prototype.isSelected = function(row) {
   return (this.states.selection || []).indexOf(row) > -1;
 };
-
+/**
+ * 清除选择集
+ */
 TableStore.prototype.clearSelection = function() {
   const states = this.states;
   states.isAllSelected = false;
@@ -323,7 +353,9 @@ TableStore.prototype.clearSelection = function() {
     this.table.$emit('selection-change', states.selection);
   }
 };
-
+/**
+ * 设置展开行的键
+ */
 TableStore.prototype.setExpandRowKeys = function(rowKeys) {
   const expandRows = [];
   const data = this.states.data;
@@ -339,14 +371,18 @@ TableStore.prototype.setExpandRowKeys = function(rowKeys) {
 
   this.states.expandRows = expandRows;
 };
-
+/**
+ * 切换行的选择状态
+ */
 TableStore.prototype.toggleRowSelection = function(row, selected) {
   const changed = toggleRowSelection(this.states, row, selected);
   if (changed) {
     this.table.$emit('selection-change', this.states.selection);
   }
 };
-
+/**
+ * 清除选择集
+ */
 TableStore.prototype.cleanSelection = function() {
   const selection = this.states.selection || [];
   const data = this.states.data;
@@ -375,7 +411,9 @@ TableStore.prototype.cleanSelection = function() {
     this.table.$emit('selection-change', selection);
   }
 };
-
+/**
+ * 更新全选状态
+ */
 TableStore.prototype.updateAllSelected = function() {
   const states = this.states;
   const { selection, rowKey, selectable, data } = states;
@@ -425,11 +463,15 @@ TableStore.prototype.updateAllSelected = function() {
 
   states.isAllSelected = isAllSelected;
 };
-
+/**
+ * 刷新表格布局
+ */
 TableStore.prototype.scheduleLayout = function() {
   this.table.debouncedLayout();
 };
-
+/**
+ * 设置当前行键
+ */
 TableStore.prototype.setCurrentRowKey = function(key) {
   const states = this.states;
   const rowKey = states.rowKey;
@@ -441,7 +483,9 @@ TableStore.prototype.setCurrentRowKey = function(key) {
     states.currentRow = info.row;
   }
 };
-
+/**
+ * 更新当前行
+ */
 TableStore.prototype.updateCurrentRow = function() {
   const states = this.states;
   const table = this.table;
@@ -456,7 +500,9 @@ TableStore.prototype.updateCurrentRow = function() {
     }
   }
 };
-
+/**
+ * 表格状态提交修改
+ */
 TableStore.prototype.commit = function(name, ...args) {
   const mutations = this.mutations;
   if (mutations[name]) {
