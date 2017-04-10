@@ -206,6 +206,7 @@ export default {
   },
 
   computed: {
+    // 获取所属的表格组件
     owner() {
       let parent = this.$parent;
       while (parent && !parent.tableId) {
