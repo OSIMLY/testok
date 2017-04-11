@@ -3,8 +3,8 @@ import ElTag from 'element-ui/packages/tag';
 import Vue from 'vue';
 import FilterPanel from './filter-panel.vue';
 /**
- * 获取全部列
- * @param {*} columns 
+ * 根据父级列获取全部子列
+ * @param {Object} columns 列对象
  */
 const getAllColumns = (columns) => {
   const result = [];
@@ -146,14 +146,19 @@ export default {
   },
 
   props: {
+    // 是否为固定列容器
     fixed: String,
+    // 表格状态管理对象
     store: {
       required: true
     },
+    // 表格布局对象
     layout: {
       required: true
     },
+    // 是否显示列边线
     border: Boolean,
+    // 默认排序的列及排序方式
     defaultSort: {
       type: Object,
       default() {
@@ -171,32 +176,35 @@ export default {
   },
 
   computed: {
+    // 返回是否全选
     isAllSelected() {
       return this.store.states.isAllSelected;
     },
-
+    // 返回列的数量
     columnsCount() {
       return this.store.states.columns.length;
     },
-
+    // 返回左侧固定列的数量
     leftFixedCount() {
       return this.store.states.fixedColumns.length;
     },
-
+    // 返回右侧固定列的数量
     rightFixedCount() {
       return this.store.states.rightFixedColumns.length;
     },
-
+    // 返回列对象
     columns() {
       return this.store.states.columns;
     }
   },
 
   created() {
+    // 定义筛选面板对象，无需响应式更新的数据在此定义
     this.filterPanels = {};
   },
 
   mounted() {
+    // 初始化默认排序列
     if (this.defaultSort.prop) {
       const states = this.store.states;
       states.sortProp = this.defaultSort.prop;
@@ -219,6 +227,7 @@ export default {
   },
 
   beforeDestroy() {
+    // 销毁筛选面板
     const panels = this.filterPanels;
     for (let prop in panels) {
       if (panels.hasOwnProperty(prop) && panels[prop]) {
@@ -230,10 +239,11 @@ export default {
   methods: {
     /**
      * 判断单元格是否隐藏
-     * @param {*} index 
-     * @param {*} columns 
+     * @param {Number} index 列序号
+     * @param {Object} columns 列对象
      */
     isCellHidden(index, columns) {
+      // 根据列序号及固定列长度确定那些列需要隐藏
       if (this.fixed === true || this.fixed === 'left') {
         return index >= this.leftFixedCount;
       } else if (this.fixed === 'right') {
@@ -250,26 +260,27 @@ export default {
      * 切换全选状态
      */
     toggleAllSelection() {
+      // 通过触发 store 内部方法修改
       this.store.commit('toggleAllSelection');
     },
     /**
      * 处理筛选器点击
-     * @param {*} event 
-     * @param {*} column 
+     * @param {Object} event 事件对象
+     * @param {Object} column 列对象
      */
     handleFilterClick(event, column) {
       event.stopPropagation();
       const target = event.target;
       const cell = target.parentNode;
       const table = this.$parent;
-
+      // 筛选面板以列 id 为索引存储到数组中
       let filterPanel = this.filterPanels[column.id];
 
       if (filterPanel && column.filterOpened) {
         filterPanel.showPopper = false;
         return;
       }
-
+      // 如果数组中不存在则初始化一个新面板组件
       if (!filterPanel) {
         filterPanel = new Vue(FilterPanel);
         this.filterPanels[column.id] = filterPanel;
@@ -286,10 +297,11 @@ export default {
     },
     /**
      * 处理表头点击
-     * @param {*} event 
-     * @param {*} column 
+     * @param {Object} event 事件对象
+     * @param {Object} column 列对象
      */
     handleHeaderClick(event, column) {
+      // 确定点击列头进行排序还是筛选
       if (!column.filters && column.sortable) {
         this.handleSortClick(event, column);
       } else if (column.filters && !column.sortable) {
@@ -300,24 +312,25 @@ export default {
     },
     /**
      * 处理表头右键菜单
-     * @param {*} event 
-     * @param {*} column 
+     * @param {Object} event 事件对象
+     * @param {Object} column 列对象
      */
     handleHeaderContextmenu(event, column) {
       this.$parent.$emit('header-contextmenu', column, event);
     },
     /**
      * 处理鼠标按下
-     * @param {*} event 
-     * @param {*} column 
+     * @param {Object} event 事件对象
+     * @param {Object} column 列对象
      */
     handleMouseDown(event, column) {
+      // 处理拖动调整列宽
       if (this.$isServer) return;
       if (column.children && column.children.length > 0) return;
       /* istanbul ignore if */
       if (this.draggingColumn && this.border) {
         this.dragging = true;
-
+        // 显示一条竖线
         this.$parent.resizeProxyVisible = true;
 
         const table = this.$parent;
@@ -341,14 +354,14 @@ export default {
 
         document.onselectstart = function() { return false; };
         document.ondragstart = function() { return false; };
-
+        // 处理鼠标移动事件
         const handleMouseMove = (event) => {
           const deltaLeft = event.clientX - this.dragState.startMouseLeft;
           const proxyLeft = this.dragState.startLeft + deltaLeft;
 
           resizeProxy.style.left = Math.max(minLeft, proxyLeft) + 'px';
         };
-
+        // 处理鼠标抬起事件
         const handleMouseUp = () => {
           if (this.dragging) {
             const {
@@ -369,7 +382,7 @@ export default {
 
             table.resizeProxyVisible = false;
           }
-
+          // 鼠标抬起后取消监听移动和抬起事件
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
           document.onselectstart = null;
@@ -379,15 +392,15 @@ export default {
             columnEl.classList.remove('noclick');
           }, 0);
         };
-
+        // 鼠标按下后开始监听移动和抬起事件
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
       }
     },
     /**
      * 处理鼠标移动
-     * @param {*} event 
-     * @param {*} column 
+     * @param {Object} event 事件对象
+     * @param {Object} column 列对象
      */
     handleMouseMove(event, column) {
       if (column.children && column.children.length > 0) return;
@@ -420,16 +433,16 @@ export default {
     },
     /**
      * 切换顺序
-     * @param {*} order 
+     * @param {Number} order 
      */
     toggleOrder(order) {
       return !order ? 'ascending' : order === 'ascending' ? 'descending' : null;
     },
     /**
-     * 处理排序点击
-     * @param {*} event 
-     * @param {*} column 
-     * @param {*} givenOrder 
+     * 处理点击排序事件
+     * @param {Object} event 事件对象
+     * @param {Object} column 列对象
+     * @param {String} givenOrder 排序方式
      */
     handleSortClick(event, column, givenOrder) {
       event.stopPropagation();

@@ -14,9 +14,9 @@ const sortData = (data, states) => {
   return orderBy(data, states.sortProp, states.sortOrder, sortingColumn.sortMethod);
 };
 /**
- * 获取键映射
- * @param {*} array 
- * @param {*} rowKey 
+ * 从行集合中提取某个属性的集合
+ * @param {Array} array 行集合
+ * @param {String} rowKey 属性名称
  */
 const getKeysMap = function(array, rowKey) {
   const arrayMap = {};
@@ -27,9 +27,9 @@ const getKeysMap = function(array, rowKey) {
 };
 /**
  * 切换行的选中状态
- * @param {*} states 
- * @param {*} row 
- * @param {*} selected 
+ * @param {Object} states 表格状态对象
+ * @param {Object} row 行对象
+ * @param {Boolean} selected 选中状态
  */
 const toggleRowSelection = function(states, row, selected) {
   let changed = false;
@@ -56,9 +56,9 @@ const toggleRowSelection = function(states, row, selected) {
   return changed;
 };
 /**
- * 表格状态存储
- * @param {*} table 
- * @param {*} initialState 
+ * 表格状态存储对象
+ * @param {Object} table 表格对象
+ * @param {Object} initialState 状态初始化对象
  */
 const TableStore = function(table, initialState = {}) {
   if (!table) {
@@ -67,32 +67,54 @@ const TableStore = function(table, initialState = {}) {
   this.table = table;
 
   this.states = {
+    // 行对象属性名
     rowKey: null,
+    // 列集合的副本
     _columns: [],
+    // 根级列集合
     originColumns: [],
+    // 全部子列集合
     columns: [],
+    // 左侧固定列集合
     fixedColumns: [],
+    // 右侧固定列集合
     rightFixedColumns: [],
+    // 是否含有多级表头
     isComplex: false,
+    // 表格数据源副本，用于数据处理
     _data: null,
+    // 排序后的表格数据
     filteredData: null,
+    // 表格数据源
     data: null,
+    // 排序的列对象
     sortingColumn: null,
+    // 排序的字段名
     sortProp: null,
+    // 排序方式
     sortOrder: null,
+    // 是否全选
     isAllSelected: false,
+    // 行的选择集
     selection: [],
+    // 是否保留之前的数据选项
     reserveSelection: false,
+    // 选择列处理行可选状态的函数
     selectable: null,
+    // 当前行
     currentRow: null,
+    // 鼠标悬停的行
     hoverRow: null,
+    // 筛选值的集合
     filters: {},
+    // 展开的行集合
     expandRows: [],
+    // 默认全部展开
     defaultExpandAll: false,
     // 新增汇总列
     summary: null
   };
-
+  // 根据初始值设置状态对象
   for (let prop in initialState) {
     if (initialState.hasOwnProperty(prop) && this.states.hasOwnProperty(prop)) {
       this.states[prop] = initialState[prop];
@@ -100,9 +122,14 @@ const TableStore = function(table, initialState = {}) {
   }
 };
 /**
- * 表格状态修改
+ * 表格状态修改，类似于 VueX，通过 mutations 修改数据
  */
 TableStore.prototype.mutations = {
+  /**
+   * 重设表格数据源
+   * @param {Object} states 表格状态对象
+   * @param {Object} data 表格数据源
+   */
   setData(states, data) {
     const dataInstanceChanged = states._data !== data;
     states._data = data;
@@ -153,7 +180,10 @@ TableStore.prototype.mutations = {
 
     Vue.nextTick(() => this.table.updateScrollY());
   },
-
+  /**
+   * 更新排序状态
+   * @param {Object} states 表格状态对象
+   */
   changeSortCondition(states) {
     states.data = sortData((states.filteredData || states._data || []), states);
 
@@ -165,7 +195,11 @@ TableStore.prototype.mutations = {
 
     Vue.nextTick(() => this.table.updateScrollY());
   },
-
+  /**
+   * 更新筛选状态
+   * @param {Object} states 表格状态对象
+   * @param {Object} options 选项对象
+   */
   filterChange(states, options) {
     let { column, values } = options;
     if (values && !Array.isArray(values)) {
@@ -200,7 +234,13 @@ TableStore.prototype.mutations = {
 
     Vue.nextTick(() => this.table.updateScrollY());
   },
-
+  /**
+   * 动态插入列
+   * @param {Object} states 表格状态对象
+   * @param {Object} column 列对象
+   * @param {Number} index 序号
+   * @param {Object} parent 父组件
+   */
   insertColumn(states, column, index, parent) {
     let array = states._columns;
     if (parent) {
@@ -221,7 +261,11 @@ TableStore.prototype.mutations = {
 
     this.scheduleLayout();
   },
-
+  /**
+   * 动态移除列
+   * @param {Object} states 表格状态对象
+   * @param {Object} column 列对象
+   */
   removeColumn(states, column) {
     let _columns = states._columns;
     if (_columns) {
@@ -230,11 +274,19 @@ TableStore.prototype.mutations = {
 
     this.scheduleLayout();
   },
-
+  /**
+   * 设置鼠标悬停行
+   * @param {Object} states 表格状态对象
+   * @param {Object} row 行对象
+   */
   setHoverRow(states, row) {
     states.hoverRow = row;
   },
-
+  /**
+   * 设置单选行
+   * @param {Object} states 表格状态对象
+   * @param {Object} row 行对象
+   */
   setCurrentRow(states, row) {
     const oldCurrentRow = states.currentRow;
     states.currentRow = row;
@@ -243,7 +295,11 @@ TableStore.prototype.mutations = {
       this.table.$emit('current-change', row, oldCurrentRow);
     }
   },
-
+  /**
+   * 刷新行的选择集
+   * @param {Object} states 表格状态对象
+   * @param {Object} row 行对象
+   */
   rowSelectedChanged(states, row) {
     const changed = toggleRowSelection(states, row);
     const selection = states.selection;
@@ -256,7 +312,12 @@ TableStore.prototype.mutations = {
 
     this.updateAllSelected();
   },
-
+  /**
+   * 切换行的展开状态
+   * @param {Object} states 表格状态对象
+   * @param {Object} row 行对象
+   * @param {Boolean} expanded 展开状态
+   */
   toggleRowExpanded: function(states, row, expanded) {
     const expandRows = states.expandRows;
     if (typeof expanded !== 'undefined') {
@@ -276,7 +337,10 @@ TableStore.prototype.mutations = {
     }
     this.table.$emit('expand', row, expandRows.indexOf(row) !== -1);
   },
-
+  /**
+   * 切换全部行展开状态，通过节流函数调用
+   * @param {Object} states 表格状态对象
+   */
   toggleAllSelection: debounce(10, function(states) {
     const data = states.data || [];
     const value = !states.isAllSelected;
@@ -304,8 +368,8 @@ TableStore.prototype.mutations = {
   })
 };
 /**
- * 整理列
- * @param {*} columns 
+ * 递归获取所有子列
+ * @param {Object} columns 列对象
  */
 const doFlattenColumns = (columns) => {
   const result = [];
@@ -318,8 +382,9 @@ const doFlattenColumns = (columns) => {
   });
   return result;
 };
+// 以下为 TableStore 实例的公共方法
 /**
- * 更新列
+ * 更新状态对象中所有与列相关的属性
  */
 TableStore.prototype.updateColumns = function() {
   const states = this.states;
@@ -337,6 +402,7 @@ TableStore.prototype.updateColumns = function() {
 };
 /**
  * 判断行是否选中
+ * @param {Object} row 行对象
  */
 TableStore.prototype.isSelected = function(row) {
   return (this.states.selection || []).indexOf(row) > -1;
@@ -354,7 +420,8 @@ TableStore.prototype.clearSelection = function() {
   }
 };
 /**
- * 设置展开行的键
+ * 通过属性名集合设置展开行
+ * @param {Array} rowKeys 属性名集合
  */
 TableStore.prototype.setExpandRowKeys = function(rowKeys) {
   const expandRows = [];
@@ -372,7 +439,9 @@ TableStore.prototype.setExpandRowKeys = function(rowKeys) {
   this.states.expandRows = expandRows;
 };
 /**
- * 切换行的选择状态
+ * 切换行的选中状态
+ * @param {Object} row 行对象
+ * @param {Boolean} selected 选中状态
  */
 TableStore.prototype.toggleRowSelection = function(row, selected) {
   const changed = toggleRowSelection(this.states, row, selected);

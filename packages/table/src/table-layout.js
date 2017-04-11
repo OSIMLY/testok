@@ -1,10 +1,10 @@
 import scrollbarWidth from 'element-ui/src/utils/scrollbar-width';
 
 class TableLayout {
-    /**
-     * 构造函数
-     * @param {*} options 
-     */
+  /**
+   * 构造函数
+   * @param {Object} options 选项对象
+   */
   constructor(options) {
     this.table = null;
     this.store = null;
@@ -52,8 +52,8 @@ class TableLayout {
   }
 /**
  * 设置高度
- * @param {*} value 
- * @param {*} prop 
+ * @param {String} value 属性值
+ * @param {String} prop 样式属性名称
  */
   setHeight(value, prop = 'height') {
     const el = this.table.$el;
@@ -77,7 +77,7 @@ class TableLayout {
   }
 /**
  * 设置最大高度
- * @param {*} value 
+ * @param {String} value 
  */
   setMaxHeight(value) {
     return this.setHeight(value, 'max-height');
@@ -123,7 +123,7 @@ class TableLayout {
         flattenColumns.push(column);
       }
     });
-
+    // 没有设定宽度的列为弹性列，宽度自动伸展
     let flexColumns = flattenColumns.filter((column) => typeof column.width !== 'number');
 
     if (flexColumns.length > 0 && fit) {
