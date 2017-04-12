@@ -3,8 +3,8 @@ import debounce from 'throttle-debounce/debounce';
 import { orderBy, getColumnById, getRowIdentity } from './util';
 /**
  * 表格数据排序
- * @param {Object} data 
- * @param {Object} states 
+ * @param {Object} data 表格数据源
+ * @param {Object} states 表格状态对象
  */
 const sortData = (data, states) => {
   const sortingColumn = states.sortingColumn;
