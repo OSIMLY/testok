@@ -7,6 +7,9 @@
     "vue",
     "component"
   ],
+  "scripts":{
+      "build": "cooking build -c build/cooking.conf.js"
+  },
   "main": "./lib/index.js",
   "repository": "https://github.com/ElemeFE/element/tree/master/packages/table",
   "author": "elemefe",

@@ -1,6 +1,8 @@
 <template>
   <transition name="el-zoom-in-top">
+    <!--多项筛选面板-->
     <div class="el-table-filter" v-if="multiple" v-show="showPopper">
+      <!--选项列表-->
       <div class="el-table-filter__content">
         <el-checkbox-group class="el-table-filter__checkbox-group" v-model="filteredValue">
           <el-checkbox
@@ -8,18 +10,24 @@
             :label="filter.value">{{ filter.text }}</el-checkbox>
         </el-checkbox-group>
       </div>
+      <!--按钮-->
       <div class="el-table-filter__bottom">
+        <!--确认-->
         <button @click="handleConfirm"
           :class="{ 'is-disabled': filteredValue.length === 0 }"
           :disabled="filteredValue.length === 0">{{ t('el.table.confirmFilter') }}</button>
+        <!--重置-->
         <button @click="handleReset">{{ t('el.table.resetFilter') }}</button>
       </div>
     </div>
+    <!--单项筛选面板-->
     <div class="el-table-filter" v-else v-show="showPopper">
       <ul class="el-table-filter__list">
+        <!--清除筛选-->
         <li class="el-table-filter__list-item"
             :class="{ 'is-active': !filterValue }"
             @click="handleSelect(null)">{{ t('el.table.clearFilter') }}</li>
+        <!--选项列表-->
         <li class="el-table-filter__list-item"
             v-for="filter in filters"
             :label="filter.value"
@@ -71,25 +79,36 @@
     },
 
     methods: {
+      /**
+       * 获取显示状态
+       */
       isActive(filter) {
         return filter.value === this.filterValue;
       },
-
+      /**
+       * 处理外部点击指令
+       */
       handleOutsideClick() {
         this.showPopper = false;
       },
-
+      /**
+       * 处理确认按钮点击事件
+       */
       handleConfirm() {
         this.confirmFilter(this.filteredValue);
         this.handleOutsideClick();
       },
-
+      /**
+       * 处理重置按钮点击事件
+       */
       handleReset() {
         this.filteredValue = [];
         this.confirmFilter(this.filteredValue);
         this.handleOutsideClick();
       },
-
+      /**
+       * 处理点击选项事件
+       */
       handleSelect(filterValue) {
         this.filterValue = filterValue;
 
@@ -101,7 +120,9 @@
 
         this.handleOutsideClick();
       },
-
+      /**
+       * 通过新筛选对象更新表格状态
+       */
       confirmFilter(filteredValue) {
         this.table.store.commit('filterChange', {
           column: this.column,

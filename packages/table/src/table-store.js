@@ -539,7 +539,7 @@ TableStore.prototype.scheduleLayout = function() {
   this.table.debouncedLayout();
 };
 /**
- * 设置当前行键
+ * 根据键名与键值设置当前行
  */
 TableStore.prototype.setCurrentRowKey = function(key) {
   const states = this.states;
@@ -570,7 +570,7 @@ TableStore.prototype.updateCurrentRow = function() {
   }
 };
 /**
- * 表格状态提交修改
+ * 表格状态修改，执行 mutations 的方法并传入参数
  */
 TableStore.prototype.commit = function(name, ...args) {
   const mutations = this.mutations;
